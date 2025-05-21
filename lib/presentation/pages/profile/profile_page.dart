@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flavorith/logic/cubits/language_cubit.dart';
 import 'package:flavorith/logic/cubits/theme_cubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flavorith/presentation/pages/auth/login_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -19,7 +20,15 @@ class ProfilePage extends StatelessWidget {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-              // TODO: Navigate to login page
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(),
+                  ),
+                  (route) => false,
+                );
+              }
             },
           ),
         ],

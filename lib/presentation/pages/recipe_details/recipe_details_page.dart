@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flavorith/data/models/recipe.dart';
+import 'package:flavorith/features/recipes/domain/models/recipe.dart';
 import 'package:flavorith/logic/cubits/recipe_cubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

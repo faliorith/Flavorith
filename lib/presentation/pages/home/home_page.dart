@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flavorith/core/constants/app_constants.dart';
 import 'package:flavorith/logic/cubits/recipe_cubit.dart';
-import 'package:flavorith/data/models/recipe.dart';
+import 'package:flavorith/features/recipes/domain/models/recipe.dart';
 import 'package:flavorith/presentation/pages/add_recipe/add_recipe_page.dart';
+import 'package:flavorith/presentation/pages/recipe_details/recipe_details_page.dart';
 
 // Временная заглушка, если AddRecipePage не реализована
 class AddRecipePage extends StatelessWidget {
@@ -21,12 +22,17 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Рецепты'),
+        title: const Text('Flavorith'),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // TODO: Implement search
+              showSearch(
+                context: context,
+                delegate: RecipeSearchDelegate(
+                  context.read<RecipeCubit>(),
+                ),
+              );
             },
           ),
         ],
@@ -38,116 +44,26 @@ class HomePage extends StatelessWidget {
           }
           
           if (state is RecipeError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(state.message),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<RecipeCubit>().loadRecipes();
-                    },
-                    child: const Text('Повторить'),
-                  ),
-                ],
-              ),
-            );
+            return Center(child: Text(state.message));
           }
           
           if (state is RecipeLoaded) {
-            if (state.recipes.isEmpty) {
-              return const Center(
-                child: Text('Нет доступных рецептов'),
-              );
-            }
-            
             return ListView.builder(
-              padding: const EdgeInsets.all(16),
               itemCount: state.recipes.length,
               itemBuilder: (context, index) {
                 final recipe = state.recipes[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: InkWell(
-                    onTap: () {
-                      // TODO: Navigate to recipe details
-                    },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (recipe.imageUrl != null)
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(12),
-                            ),
-                            child: Image.network(
-                              recipe.imageUrl,
-                              height: 200,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                recipe.title,
-                                style: Theme.of(context).textTheme.titleLarge,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                recipe.description,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Автор: ${recipe.authorName}',
-                                    style: Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(
-                                          recipe.isFavorite
-                                              ? Icons.favorite
-                                              : Icons.favorite_border,
-                                          color: recipe.isFavorite
-                                              ? Colors.red
-                                              : null,
-                                        ),
-                                        onPressed: () {
-                                          // TODO: Implement toggle favorite
-                                        },
-                                      ),
-                                      Text('${recipe.likesCount}'),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                return RecipeCard(recipe: recipe);
               },
             );
           }
           
-          return const SizedBox.shrink();
+          return const Center(child: Text('Нет рецептов'));
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
+          Navigator.push(
+            context,
             MaterialPageRoute(
               builder: (context) => const AddRecipePage(),
             ),
@@ -156,5 +72,146 @@ class HomePage extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
     );
+  }
+}
+
+class RecipeCard extends StatelessWidget {
+  final Recipe recipe;
+
+  const RecipeCard({
+    super.key,
+    required this.recipe,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.all(8.0),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RecipeDetailsPage(recipe: recipe),
+            ),
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Hero(
+              tag: 'recipe_image_${recipe.id}',
+              child: Image.network(
+                recipe.imageUrl,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    recipe.title,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    recipe.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          recipe.isFavorite
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: recipe.isFavorite ? Colors.red : null,
+                        ),
+                        onPressed: () {
+                          context.read<RecipeCubit>().toggleFavorite(
+                            recipe.id,
+                            !recipe.isFavorite,
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        recipe.authorName,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RecipeSearchDelegate extends SearchDelegate<Recipe?> {
+  final RecipeCubit _cubit;
+
+  RecipeSearchDelegate(this._cubit);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    _cubit.searchRecipes(query);
+    return BlocBuilder<RecipeCubit, RecipeState>(
+      builder: (context, state) {
+        if (state is RecipeLoaded) {
+          return ListView.builder(
+            itemCount: state.recipes.length,
+            itemBuilder: (context, index) {
+              final recipe = state.recipes[index];
+              return ListTile(
+                title: Text(recipe.title),
+                subtitle: Text(recipe.description),
+                onTap: () {
+                  close(context, recipe);
+                },
+              );
+            },
+          );
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return buildResults(context);
   }
 } 

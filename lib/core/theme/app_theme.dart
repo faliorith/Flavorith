@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use, depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static const _primaryColor = Color(0xFF7D8F69); // Оливковый
@@ -14,6 +13,7 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      fontFamily: 'Poppins',
       colorScheme: const ColorScheme.light(
         primary: _primaryColor,
         secondary: _secondaryColor,
@@ -24,26 +24,24 @@ class AppTheme {
         onSecondary: _textColor,
         onSurface: _textColor,
       ),
-      textTheme: GoogleFonts.poppinsTextTheme(
-        ThemeData.light().textTheme.copyWith(
-          displayLarge: const TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: _textColor,
-          ),
-          displayMedium: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-            color: _textColor,
-          ),
-          bodyLarge: const TextStyle(
-            fontSize: 16,
-            color: _textColor,
-          ),
-          bodyMedium: const TextStyle(
-            fontSize: 14,
-            color: _textColor,
-          ),
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: _textColor,
+        ),
+        displayMedium: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          color: _textColor,
+        ),
+        bodyLarge: TextStyle(
+          fontSize: 16,
+          color: _textColor,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          color: _textColor,
         ),
       ),
       appBarTheme: const AppBarTheme(
@@ -112,26 +110,24 @@ class AppTheme {
         onSecondary: Colors.white,
         onBackground: Colors.white,
       ),
-      textTheme: GoogleFonts.poppinsTextTheme(
-        ThemeData.dark().textTheme.copyWith(
-          displayLarge: const TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          displayMedium: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-          bodyLarge: const TextStyle(
-            fontSize: 16,
-            color: Colors.white,
-          ),
-          bodyMedium: const TextStyle(
-            fontSize: 14,
-            color: Colors.white,
-          ),
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+        displayMedium: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        bodyLarge: TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          color: Colors.white,
         ),
       ),
       appBarTheme: const AppBarTheme(

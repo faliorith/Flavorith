@@ -1,49 +1,21 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flavorith/core/constants/app_constants.dart';
-import 'package:flavorith/logic/cubits/language_cubit.dart';
-import 'package:flavorith/logic/cubits/theme_cubit.dart';
+import 'package:flavorith/core/services/firebase_service.dart';
+import 'package:flavorith/features/recipes/presentation/cubit/recipe_cubit.dart';
+import 'package:flavorith/features/recipes/data/repositories/recipe_repository.dart';
+import 'package:flavorith/presentation/pages/home/home_page.dart';
 import 'package:flavorith/core/theme/app_theme.dart';
-import 'package:flavorith/firebase_options.dart';
-import 'package:flavorith/logic/cubits/recipe_cubit.dart';
-import 'package:flavorith/data/repositories/recipe_repository.dart';
-import 'package:flavorith/presentation/pages/welcome/welcome_page.dart';
+import 'package:flavorith/generated/l10n.dart' as l10n;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Инициализация Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
-  // Инициализация SharedPreferences
-  final prefs = await SharedPreferences.getInstance();
-  final recipeRepository = RecipeRepository();
-  
-  runApp(
-    MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => LanguageCubit(
-            prefs.getString(AppConstants.languageKey) ?? 'ru',
-          ),
-        ),
-        BlocProvider(
-          create: (context) => ThemeCubit(
-            prefs.getBool(AppConstants.darkModeKey) ?? false,
-          ),
-        ),
-        BlocProvider(
-          create: (context) => RecipeCubit(repository: recipeRepository),
-        ),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  final firebaseService = FirebaseService();
+  await firebaseService.initialize();
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -51,24 +23,35 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeCubit, bool>(
-      builder: (context, isDarkMode) {
-        return MaterialApp(
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(
+          create: (context) => RecipeRepository(),
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => RecipeCubit(
+              recipeRepository: context.read<RecipeRepository>(),
+            ),
+          ),
+        ],
+        child: MaterialApp(
           title: 'Flavorith',
-          theme: isDarkMode ? AppTheme.darkTheme : AppTheme.lightTheme,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeMode.system,
           localizationsDelegates: const [
+            l10n.AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const [
-            Locale('en'),
-            Locale('ru'),
-          ],
-          locale: Locale(context.read<LanguageCubit>().state),
-          home: const WelcomePage(),
-        );
-      },
+          supportedLocales: l10n.AppLocalizations.delegate.supportedLocales,
+          home: const HomePage(),
+        ),
+      ),
     );
   }
 }

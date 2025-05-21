@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flavorith/presentation/pages/category_recipes/category_recipes_page.dart';
 
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
@@ -71,7 +72,14 @@ class CategoriesPage extends StatelessWidget {
               ),
               child: InkWell(
                 onTap: () {
-                  // TODO: Navigate to category recipes
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CategoryRecipesPage(
+                        category: category['name'] as String,
+                      ),
+                    ),
+                  );
                 },
                 borderRadius: BorderRadius.circular(16),
                 child: Container(

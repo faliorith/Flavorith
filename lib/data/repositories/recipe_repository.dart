@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flavorith/core/constants/app_constants.dart';
-import 'package:flavorith/data/models/recipe.dart';
+import 'package:flavorith/features/recipes/domain/models/recipe.dart';
 
 class RecipeRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

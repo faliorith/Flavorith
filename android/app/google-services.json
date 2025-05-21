@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1051674072588",
+    "project_id": "flavorith",
+    "storage_bucket": "flavorith.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051674072588:android:5694c3acaee6f8bfe3c029",
+        "android_client_info": {
+          "package_name": "com.exam.flavorith"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrTAea9QcUyffDzkoQEUCMmSM8tlahX5U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051674072588:android:65fa389b7583fccce3c029",
+        "android_client_info": {
+          "package_name": "com.faliorith.flavorith"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrTAea9QcUyffDzkoQEUCMmSM8tlahX5U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

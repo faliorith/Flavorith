@@ -13,7 +13,7 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      fontFamily: 'Poppins',
+      fontFamily: 'Montserrat',
       colorScheme: const ColorScheme.light(
         primary: _primaryColor,
         secondary: _secondaryColor,
@@ -27,21 +27,27 @@ class AppTheme {
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: 32,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
           color: _textColor,
+          fontFamily: 'Montserrat',
         ),
         displayMedium: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: _textColor,
+          fontFamily: 'Montserrat',
         ),
         bodyLarge: TextStyle(
           fontSize: 16,
+          fontWeight: FontWeight.w400,
           color: _textColor,
+          fontFamily: 'Montserrat',
         ),
         bodyMedium: TextStyle(
           fontSize: 14,
+          fontWeight: FontWeight.w400,
           color: _textColor,
+          fontFamily: 'Montserrat',
         ),
       ),
       appBarTheme: const AppBarTheme(
@@ -100,6 +106,7 @@ class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
+      fontFamily: 'Montserrat',
       colorScheme: const ColorScheme.dark(
         primary: _primaryColor,
         secondary: _secondaryColor,
@@ -113,21 +120,27 @@ class AppTheme {
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: 32,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
           color: Colors.white,
+          fontFamily: 'Montserrat',
         ),
         displayMedium: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: Colors.white,
+          fontFamily: 'Montserrat',
         ),
         bodyLarge: TextStyle(
           fontSize: 16,
+          fontWeight: FontWeight.w400,
           color: Colors.white,
+          fontFamily: 'Montserrat',
         ),
         bodyMedium: TextStyle(
           fontSize: 14,
+          fontWeight: FontWeight.w400,
           color: Colors.white,
+          fontFamily: 'Montserrat',
         ),
       ),
       appBarTheme: const AppBarTheme(

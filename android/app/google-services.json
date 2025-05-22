@@ -1,15 +1,16 @@
 {
   "project_info": {
     "project_number": "1051674072588",
+    "firebase_url": "https://flavorith-default-rtdb.firebaseio.com",
     "project_id": "flavorith",
     "storage_bucket": "flavorith.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1051674072588:android:5694c3acaee6f8bfe3c029",
+        "mobilesdk_app_id": "1:1051674072588:android:9d9dde368e0c7b91e3c029",
         "android_client_info": {
-          "package_name": "com.exam.flavorith"
+          "package_name": "com.example.flavorith"
         }
       },
       "oauth_client": [],

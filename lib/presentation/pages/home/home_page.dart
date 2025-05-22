@@ -1,19 +1,20 @@
-// ignore_for_file: unused_import, unnecessary_null_comparison
+// ignore_for_file: unused_import, unnecessary_null_comparison, unnecessary_import
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:flavorith/core/constants/app_constants.dart';
-import 'package:flavorith/logic/cubits/recipe_cubit.dart';
-import 'package:flavorith/features/recipes/domain/models/recipe.dart';
+import 'package:flavorith/features/recipes/presentation/cubit/recipe_cubit.dart';
+import 'package:flavorith/domain/models/recipe.dart';
 import 'package:flavorith/presentation/pages/add_recipe/add_recipe_page.dart';
 import 'package:flavorith/presentation/pages/recipe_details/recipe_details_page.dart';
 
-// Временная заглушка, если AddRecipePage не реализована
-class AddRecipePage extends StatelessWidget {
-  const AddRecipePage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Добавить рецепт')));
-}
+// Remove the temporary placeholder AddRecipePage
+// class AddRecipePage extends StatelessWidget {
+//   const AddRecipePage({super.key});
+//   @override
+//   Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Добавить рецепт')));
+// }
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -48,11 +49,14 @@ class HomePage extends StatelessWidget {
           }
           
           if (state is RecipeLoaded) {
+            if (state.recipes.isEmpty) {
+              return const Center(child: Text('Нет рецептов'));
+            }
             return ListView.builder(
               itemCount: state.recipes.length,
               itemBuilder: (context, index) {
                 final recipe = state.recipes[index];
-                return RecipeCard(recipe: recipe);
+                return _buildRecipeCard(context, recipe);
               },
             );
           }
@@ -73,21 +77,23 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-}
 
-class RecipeCard extends StatelessWidget {
-  final Recipe recipe;
-
-  const RecipeCard({
-    super.key,
-    required this.recipe,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildRecipeCard(BuildContext context, Recipe recipe) {
     return Card(
-      margin: const EdgeInsets.all(8.0),
-      child: InkWell(
+      child: ListTile(
+        leading: recipe.imageUrl.isNotEmpty
+            ? Image.network(
+                recipe.imageUrl,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+              )
+            : const Icon(Icons.restaurant),
+        title: Text(recipe.title),
+        subtitle: Text(
+          'Автор: ${recipe.authorName}\nЛайки: ${recipe.likesCount}',
+          maxLines: 2,
+        ),
         onTap: () {
           Navigator.push(
             context,
@@ -96,63 +102,6 @@ class RecipeCard extends StatelessWidget {
             ),
           );
         },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Hero(
-              tag: 'recipe_image_${recipe.id}',
-              child: Image.network(
-                recipe.imageUrl,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    recipe.title,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    recipe.description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          recipe.isFavorite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: recipe.isFavorite ? Colors.red : null,
-                        ),
-                        onPressed: () {
-                          context.read<RecipeCubit>().toggleFavorite(
-                            recipe.id,
-                            !recipe.isFavorite,
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        recipe.authorName,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -191,6 +140,9 @@ class RecipeSearchDelegate extends SearchDelegate<Recipe?> {
     return BlocBuilder<RecipeCubit, RecipeState>(
       builder: (context, state) {
         if (state is RecipeLoaded) {
+          if (state.recipes.isEmpty) {
+            return const Center(child: Text('Рецепты не найдены'));
+          }
           return ListView.builder(
             itemCount: state.recipes.length,
             itemBuilder: (context, index) {

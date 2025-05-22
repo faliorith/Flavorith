@@ -51,5 +51,10 @@
     "termsOfService": "Terms of Service",
     "contactUs": "Contact Us",
     "feedback": "Feedback",
-    "help": "Help"
+    "help": "Help",
+    "profile": "Profile",
+    "darkTheme": "Dark Theme",
+    "more": "More",
+    "favorites": "Favorites",
+    "appSettings": "App Settings"
 } 

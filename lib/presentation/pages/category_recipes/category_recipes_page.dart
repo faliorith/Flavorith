@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flavorith/features/recipes/domain/models/recipe.dart';
+import 'package:flavorith/domain/models/recipe.dart';
+import 'package:flavorith/domain/services/recipe_service.dart';
 import 'package:flavorith/logic/cubits/recipe_cubit.dart';
 import 'package:flavorith/presentation/pages/recipe_details/recipe_details_page.dart';
+import 'package:flavorith/presentation/widgets/recipe_card.dart';
 
 class CategoryRecipesPage extends StatelessWidget {
   final String category;
@@ -45,7 +47,7 @@ class CategoryRecipesPage extends StatelessWidget {
               itemCount: categoryRecipes.length,
               itemBuilder: (context, index) {
                 final recipe = categoryRecipes[index];
-                return RecipeCard(recipe: recipe);
+                return _buildRecipeCard(context, recipe);
               },
             );
           }
@@ -55,21 +57,26 @@ class CategoryRecipesPage extends StatelessWidget {
       ),
     );
   }
-}
 
-class RecipeCard extends StatelessWidget {
-  final Recipe recipe;
-
-  const RecipeCard({
-    super.key,
-    required this.recipe,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildRecipeCard(BuildContext context, Recipe recipe) {
     return Card(
-      margin: const EdgeInsets.all(8.0),
-      child: InkWell(
+      child: ListTile(
+        leading: recipe.imageUrl.isNotEmpty
+            ? Image.network(
+                recipe.imageUrl,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.error);
+                },
+              )
+            : const Icon(Icons.restaurant),
+        title: Text(recipe.title),
+        subtitle: Text(
+          'Автор: ${recipe.authorName}\nЛайки: ${recipe.likesCount}',
+          maxLines: 2,
+        ),
         onTap: () {
           Navigator.push(
             context,
@@ -78,63 +85,6 @@ class RecipeCard extends StatelessWidget {
             ),
           );
         },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Hero(
-              tag: 'recipe_image_${recipe.id}',
-              child: Image.network(
-                recipe.imageUrl,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    recipe.title,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    recipe.description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          recipe.isFavorite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: recipe.isFavorite ? Colors.red : null,
-                        ),
-                        onPressed: () {
-                          context.read<RecipeCubit>().toggleFavorite(
-                            recipe.id,
-                            !recipe.isFavorite,
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        recipe.authorName,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flavorith/core/constants/app_constants.dart';
-import 'package:flavorith/features/recipes/domain/models/recipe.dart';
+import 'package:flavorith/domain/models/recipe.dart';
 
 class RecipeRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -11,7 +11,7 @@ class RecipeRepository {
   Future<List<Recipe>> getRecipes() async {
     try {
       final snapshot = await _firestore.collection(_collection).get();
-      return snapshot.docs.map((doc) => Recipe.fromJson(doc.data())).toList();
+      return snapshot.docs.map((doc) => Recipe.fromFirestore(doc)).toList();
     } catch (e) {
       throw Exception('Failed to load recipes: $e');
     }
@@ -22,12 +22,18 @@ class RecipeRepository {
     if (!doc.exists) {
       throw Exception('Recipe not found');
     }
-    return Recipe.fromJson({...doc.data()!, 'id': doc.id});
+    return Recipe.fromFirestore(doc);
   }
   
   Future<void> addRecipe(Recipe recipe) async {
     try {
-      await _firestore.collection(_collection).add(recipe.toJson());
+      final docRef = _firestore.collection(_collection).doc();
+      final newRecipe = recipe.copyWith(
+        id: docRef.id,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      await docRef.set(newRecipe.toFirestore());
     } catch (e) {
       throw Exception('Failed to add recipe: $e');
     }
@@ -35,7 +41,7 @@ class RecipeRepository {
   
   Future<void> updateRecipe(String id, Recipe recipe) async {
     try {
-      await _firestore.collection(_collection).doc(id).update(recipe.toJson());
+      await _firestore.collection(_collection).doc(id).update(recipe.toFirestore());
     } catch (e) {
       throw Exception('Failed to update recipe: $e');
     }

@@ -1,6 +1,10 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flavorith/features/recipes/domain/models/recipe.dart';
+import 'package:provider/provider.dart';
+import 'package:flavorith/features/recipes/data/repositories/recipe_repository.dart';
+import 'package:flavorith/domain/models/recipe.dart';
 import 'package:flavorith/logic/cubits/recipe_cubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -56,24 +60,29 @@ class RecipeDetailsPage extends StatelessWidget {
                 children: [
                   Text(
                     recipe.title,
-                    style: Theme.of(context).textTheme.displayMedium,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Автор: ${recipe.authorName}',
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.person_outline, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        recipe.authorName,
-                        style: Theme.of(context).textTheme.bodyMedium,
+                      IconButton(
+                        icon: Icon(
+                          recipe.isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: recipe.isFavorite ? Colors.red : null,
+                        ),
+                        onPressed: () {
+                          context.read<RecipeCubit>().toggleFavorite(recipe.id, userId as bool);
+                        },
                       ),
+                      Text('${recipe.likesCount}'),
                       const SizedBox(width: 16),
-                      const Icon(Icons.favorite_outline, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${recipe.likesCount}',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
+                      const Icon(Icons.visibility),
+                      Text('${recipe.views}'),
                     ],
                   ),
                   const SizedBox(height: 24),

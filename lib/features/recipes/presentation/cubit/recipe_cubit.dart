@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flavorith/features/recipes/domain/models/recipe.dart';
+import 'package:flavorith/domain/models/recipe.dart';
 import 'package:flavorith/features/recipes/data/repositories/recipe_repository.dart';
 
 // Events
@@ -42,12 +42,12 @@ class LoadFavoriteRecipes extends RecipeEvent {
 
 class ToggleFavorite extends RecipeEvent {
   final String recipeId;
-  final String userId;
+  final bool isFavorite;
 
-  const ToggleFavorite(this.recipeId, this.userId);
+  const ToggleFavorite(this.recipeId, this.isFavorite);
 
   @override
-  List<Object> get props => [recipeId, userId];
+  List<Object> get props => [recipeId, isFavorite];
 }
 
 // States
@@ -82,21 +82,23 @@ class RecipeError extends RecipeState {
 
 // Cubit
 class RecipeCubit extends Cubit<RecipeState> {
-  final RecipeRepository recipeRepository;
+  final RecipeRepository _recipeRepository;
 
-  RecipeCubit({required this.recipeRepository}) : super(RecipeInitial());
+  RecipeCubit(this._recipeRepository) : super(RecipeInitial());
 
-  void loadRecipes() {
+  Future<void> loadRecipes() async {
     emit(RecipeLoading());
-    recipeRepository.getRecipes().listen(
-      (recipes) => emit(RecipeLoaded(recipes)),
-      onError: (error) => emit(RecipeError(error.toString())),
-    );
+    try {
+      final recipes = await _recipeRepository.getRecipes();
+      emit(RecipeLoaded(recipes));
+    } catch (e) {
+      emit(RecipeError(e.toString()));
+    }
   }
 
   void searchRecipes(String query) {
     emit(RecipeLoading());
-    recipeRepository.searchRecipes(query).listen(
+    _recipeRepository.searchRecipes(query).listen(
       (recipes) => emit(RecipeLoaded(recipes)),
       onError: (error) => emit(RecipeError(error.toString())),
     );
@@ -104,7 +106,7 @@ class RecipeCubit extends Cubit<RecipeState> {
 
   void loadRecipesByCategory(String category) {
     emit(RecipeLoading());
-    recipeRepository.getRecipesByCategory(category).listen(
+    _recipeRepository.getRecipesByCategory(category).listen(
       (recipes) => emit(RecipeLoaded(recipes)),
       onError: (error) => emit(RecipeError(error.toString())),
     );
@@ -112,17 +114,29 @@ class RecipeCubit extends Cubit<RecipeState> {
 
   void loadFavoriteRecipes(String userId) {
     emit(RecipeLoading());
-    recipeRepository.getFavoriteRecipes(userId).listen(
+    _recipeRepository.getFavoriteRecipes(userId).listen(
       (recipes) => emit(RecipeLoaded(recipes)),
       onError: (error) => emit(RecipeError(error.toString())),
     );
   }
 
-  Future<void> toggleFavorite(String recipeId, String userId) async {
+  Future<void> toggleFavorite(String recipeId, bool isFavorite) async {
     try {
-      await recipeRepository.toggleFavorite(recipeId, userId);
-    } catch (error) {
-      emit(RecipeError(error.toString()));
+      final currentState = state;
+      if (currentState is RecipeLoaded) {
+        final recipe = currentState.recipes.firstWhere((r) => r.id == recipeId);
+        final updatedRecipe = recipe.copyWith(
+          isFavorite: isFavorite,
+          likesCount: isFavorite ? recipe.likesCount + 1 : recipe.likesCount - 1,
+        );
+        
+        await _recipeRepository.updateRecipe(updatedRecipe);
+        emit(RecipeLoaded(
+          currentState.recipes.map((r) => r.id == recipeId ? updatedRecipe : r).toList(),
+        ));
+      }
+    } catch (e) {
+      emit(RecipeError(e.toString()));
     }
   }
 } 

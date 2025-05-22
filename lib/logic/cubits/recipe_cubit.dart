@@ -1,7 +1,8 @@
-// ignore_for_file: unnecessary_null_comparison
+// ignore_for_file: unnecessary_null_comparison, unused_import
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flavorith/features/recipes/domain/models/recipe.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flavorith/domain/models/recipe.dart';
 import 'package:flavorith/data/repositories/recipe_repository.dart';
 
 // Events
